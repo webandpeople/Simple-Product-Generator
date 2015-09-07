@@ -1,0 +1,93 @@
+<div id="spagen-popup-window-mask" style="display:none;"></div>
+<div id="spagen-popup-window" class="message-popup">
+    <div class="message-popup-head">
+        <h2 id="spagen-popup-process-title"></h2>
+    </div>
+    <div class="message-popup-content">
+        <div class="message spagen-message-box">
+            <div class="spagen-load-box" id="spagen-img-loader">
+                <img src="<?php echo $this->getSkinUrl('images/ajax-loader-tr.gif') ?>" alt="<?php echo $this->__('Process...') ?>" />
+            </div>
+            <div class="spagen-popup-process-info">
+                <p id="spagen-popup-process-message"></p>
+                <p id="spagen-popup-process-error"></p>
+            </div>
+        </div>
+        <div class="spagen-load-stop">
+            <button id="spagen-popup-process-stop-button" onclick="wpStopGenerate(); return false;" class="scalable delete" type="button"><span id="spagen-load-stop-message"><?php echo $this->__('Stop') ?></span></button>
+            <button id="spagen-popup-process-finish-button" onclick="wpReloadPage(); return false;" class="scalable nodisp" type="button"><span><?php echo $this->__('Close') ?></span></button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">//<![CDATA[
+    var wpTimeoutNext = 1000;
+    var wpGeneratePopupParams = {};
+
+    function wpOpenGeneratePopup()
+    {
+        $('spagen-popup-process-message').innerHTML = wpGeneratePopupParams.startText;
+        $('spagen-popup-process-title').innerHTML = wpGeneratePopupParams.title;
+        // ---
+        var height = $('html-body').getHeight();
+        $('spagen-popup-window-mask').setStyle({'height':height+'px'});
+        toggleSelectsUnderBlock($('spagen-popup-window-mask'), false);
+        Element.show('spagen-popup-window-mask');
+        $('spagen-popup-window-mask').scrollTo();
+        $('spagen-popup-window').addClassName('show');
+        // ---
+        wpGeneratePopupParams.stop = false;
+        wpGeneratePopupParams.next = true;
+        wpGeneratePopupParams.iteration = setInterval(function() {
+            if (!wpGeneratePopupParams.next) return;
+            wpProcessGenerate();
+        }, wpTimeoutNext);
+    }
+
+    function wpProcessGenerate()
+    {
+        if (wpGeneratePopupParams.stop) {
+            wpFinishProcess();
+            return;
+        }
+        wpGeneratePopupParams.next = false;
+        new Ajax.Request(wpGeneratePopupParams.url, {
+            method: 'post',
+            loaderArea: false,
+            parameters: wpGeneratePopupParams.data,
+            onComplete: function(transport) {
+                wpGeneratePopupParams.data.startProcess = 0;
+                wpGeneratePopupParams.next = true;
+                var responseJSON = transport.responseText.evalJSON();
+                if (responseJSON.text) {
+                    $('spagen-popup-process-message').update(responseJSON.text);
+                }
+                if (responseJSON.error) {
+                    $('spagen-popup-process-message').update(responseJSON.error);
+                }
+                if (responseJSON.finish || responseJSON.error) {
+                    wpFinishProcess();
+                }
+            }
+        });
+    }
+
+    function wpStopGenerate()
+    {
+        wpGeneratePopupParams.stop = true;
+        $('spagen-load-stop-message').innerHTML = '<?php echo $this->__('The process is being stopped...') ?>';
+    }
+
+    function wpReloadPage()
+    {
+        setLocation(wpGeneratePopupParams.reloadUrl);
+    }
+
+    function wpFinishProcess()
+    {
+        clearInterval(wpGeneratePopupParams.iteration);
+        Element.hide('spagen-popup-process-stop-button');
+        $('spagen-img-loader').style.display = 'none';
+        $('spagen-popup-process-finish-button').removeClassName('nodisp');
+    }
+//]]></script>

@@ -1,0 +1,80 @@
+#spagen-popup-window{
+    z-index: 111111;
+}
+
+#spagen-popup-window-mask, #spagen-catselector-window-mask {
+    background-color: #EFEFEF;
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    opacity: 0.5;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    filter: alpha(opacity=50);
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100%;
+    z-index: 9999;
+}
+
+.spagen-popup-process-info {
+    float: left;
+}
+
+.spagen-popup-process-info p {
+    margin: 0;
+}
+
+.spagen-load-box {
+    margin: 0 10px 0;
+    width: 35px;
+    float :left;
+}
+
+.spagen-load-stop {
+    text-align: right;
+}
+
+p.spagen-attention {
+    background: url("images/error_msg_icon.gif") no-repeat scroll 0 0;
+    line-height: 16px;
+    padding: 0 0 0 20px;
+}
+
+p.spagen-notification {
+    background: url("images/note_msg_icon.gif") no-repeat scroll 0 0;
+    line-height: 16px;
+    padding: 0 0 0 20px;
+}
+
+div.message.spagen-message-box {
+    margin-bottom: 10px;
+}
+
+.nodisp {
+    display:none;
+}
+
+.spg-buttons {
+    text-align:right;
+}
+
+#spg-options {
+    margin: 10px;
+}
+
+#spg-options label {
+    margin-left: 5px;
+}
+
+#spg-options ul {
+    margin-left: 30px;
+}
+
+#spg-options .attr {
+    margin-top: 20px;
+}
+
+#spg-options .required {
+    margin-left: 3px;
+}

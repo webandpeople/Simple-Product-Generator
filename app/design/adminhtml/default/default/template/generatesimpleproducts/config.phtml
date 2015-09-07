@@ -1,0 +1,88 @@
+<?php if (!$this->isReadonly() && $this->_getProduct()->getId()):?>
+<?php echo $this->getLayout()->createBlock('adminhtml/template')->setTemplate('generatesimpleproducts/popup.phtml')->toHtml(); ?>
+<div class="entry-edit">
+    <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend"><?php echo Mage::helper('catalog')->__('Auto Generate Simple Products') ?></h4>
+    </div>
+    <fieldset>
+        <ul class="messages">
+            <li class="notice-msg">
+                <ul>
+                    <li><?php echo $this->__('What we need is a one-click method to auto create all of the simple products that can be associated with a configurable. For example:<br />I create two attributes, Size and Color:<br />- Size: Red, Green, Blue<br />- Color: Small, Medium, Large<br />...and an attribute set "T-Shirt Attribs".<br />Then I create a configurable product, and press "Generate combinations of Simple Products".<br />It automatically creates 9 simple products for me, representing the possible combinations of size and color. This way, instead of 27 clicks (It’s at least 27, count it out) for one configurable, its just one.'); ?></li>
+                </ul>
+            </li>
+        </ul>
+        <button type="button" onclick="switchOptions();" class="scalable"><span><span><span id="spg-options-switcher"><?php echo $this->__('Show options'); ?></span></span></span></button>
+        <div id="spg-options" style="display:none;">
+            <form id="spg_options_form" name="spg_options_form">
+            <?php $attr = $this->getAttr(); ?>
+            <?php foreach ($attr as $attrCode => $attrData) : ?>
+            <div class="attr">
+                <h4>
+                    <input checked="checked" type="checkbox" id="<?php echo $attrCode; ?>_all" value="1" onclick="checkAll('<?php echo $attrCode; ?>', this.checked)" />
+                    <label for="<?php echo $attrCode; ?>_all"><?php echo $attrData['label']; ?><span class="required">*</span></label>
+                </h4>
+                <ul>
+                    <?php foreach ($attrData['values'] as $valCode => $valLabel) : ?>
+                    <li>
+                        <input checked="checked" type="checkbox" name="<?php echo $attrCode; ?>" id="<?php echo $attrCode; ?>_<?php echo $valCode; ?>" value="<?php echo $valCode; ?>" onclick="isAll('<?php echo $attrCode; ?>')" />
+                        <label for="<?php echo $attrCode; ?>_<?php echo $valCode; ?>"><?php echo $valLabel; ?></label>
+                    </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <?php endforeach; ?>
+            </form>
+        </div>
+        <div class="spg-buttons"><?php echo $this->getChildHtml('auto_generate_from_configurable') ?></div>
+    </fieldset>
+</div>
+<script type="text/javascript">//<![CDATA[
+function wpGenerateSimpleProducts()
+{
+    wpGeneratePopupParams.url = '<?php echo $this->getUrl('generatesimpleproducts/index') ?>';
+    wpGeneratePopupParams.title = '<?php echo $this->__('Auto Generate Simple Products'); ?>';
+    wpGeneratePopupParams.startText = '<?php echo $this->__('Process...') ?>';
+    wpGeneratePopupParams.reloadUrl = '<?php echo $this->getReloadUrl(); ?>';
+    var xOptions = {};
+    var fields = $('spg_options_form').getElements();
+    for (var i=0; i < fields.length; i++) {
+        if (!fields[i].name) continue;
+        if (typeof xOptions[fields[i].name] == 'undefined') xOptions[fields[i].name] = new Array();
+        if (fields[i].checked) xOptions[fields[i].name].push(fields[i].getValue());
+    }
+    wpGeneratePopupParams.data = {
+        productId: '<?php echo $this->getProductId() ?>',
+        startProcess: '1',
+        spgOptions: Object.toJSON(xOptions)
+    }
+    wpOpenGeneratePopup();
+}
+function switchOptions()
+{
+    $('spg-options').toggle();
+    if ($('spg-options').style.display == 'none') {
+        $('spg-options-switcher').innerHTML = '<?php echo $this->__('Show options'); ?>';
+    } else {
+        $('spg-options-switcher').innerHTML = '<?php echo $this->__('Hide options'); ?>';
+    }
+}
+function checkAll(name, value)
+{
+    $$("#spg-options input[name=" + name + "]").each(function(chk){
+        chk.checked = value;
+    });
+}
+function isAll(name) {
+    var count = 0;
+    var isChecked = 0;
+    $$("#spg-options input[name=" + name + "]").each(function(chk){
+        count++;
+        if (chk.checked) isChecked++;
+    });
+    $(name + '_all').checked = (isChecked == count);
+}
+//]]></script>
+<?php endif ?>
+
+<?php echo $this->getLayout()->createBlock('adminhtml/catalog_product_edit_tab_super_config')->setTemplate('catalog/product/edit/super/config.phtml')->toHtml(); ?>
